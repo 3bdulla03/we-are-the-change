@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeAreTheChange Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .chat-container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .chat-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .chat-header h1 i {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        .chat-header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .chat-body {
+            padding: 2.5rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1));
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            border-left: 5px solid var(--primary);
+            animation: fadeIn 0.8s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .welcome-section h2 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .welcome-section p {
+            color: var(--gray);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-item i {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .question-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.75rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+        }
+        
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .question-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .question-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .question-card h3 {
+            color: var(--dark);
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .question-card p {
+            color: var(--gray);
+            font-size: 0.9375rem;
+            line-height: 1.5;
+        }
+        
+        .answers-section {
+            margin-top: 3rem;
+        }
+        
+        .answer-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e5e7eb;
+            display: none;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .answer-card.active {
+            display: block;
+        }
+        
+        .answer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .answer-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--dark);
+        }
+        
+        .answer-title i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .answer-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--light);
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: var(--dark);
+        }
+        
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .answer-content {
+            color: var(--dark);
+            line-height: 1.7;
+        }
+        
+        .answer-content ul {
+            margin-left: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .answer-content li {
+            margin-bottom: 0.75rem;
+            position: relative;
+            padding-left: 0.5rem;
+        }
+        
+        .answer-content li::before {
+            content: '✓';
+            color: var(--secondary);
+            font-weight: bold;
+            position: absolute;
+            left: -1.5rem;
+        }
+        
+        .answer-links {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f3f4f6;
+        }
+        
+        .link-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 10px;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .link-item:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .chat-footer {
+            background: var(--light);
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .footer-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        .footer-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 2px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .chat-header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+            }
+            
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-badge">
+                <i class="fas fa-bolt"></i> AI Assistant
+            </div>
+            <h1>
+                <i class="fas fa-robot"></i>
+                <span>WeAreTheChange Assistant</span>
+            </h1>
+            <p>Your intelligent guide to understanding our civic engagement platform. Ask anything about features, team, security, or downloads.</p>
+        </div>
+        
+        <div class="chat-body">
+            <div class="welcome-section">
+                <h2><i class="fas fa-hand-sparkles"></i> Welcome to We Are The Change!</h2>
+                <p>I'm your virtual assistant, powered by artificial intelligence. I can provide detailed information about our platform, help you get started, and answer any questions you might have. Simply click on any question below to get instant answers.</p>
+                
+                <div class="welcome-features">
+                    <div class="feature-item">
+                        <i class="fas fa-bolt"></i>
+                        <div>
+                            <strong>Instant Answers</strong>
+                            <small>Get information instantly</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <strong>Trusted Information</strong>
+                            <small>Verified project details</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <strong>24/7 Available</strong>
+                            <small>Always ready to help</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="questions-grid">
+                <div class="question-card" onclick="showAnswer('platform')">
+                    <div class="question-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>What is the Platform?</h3>
+                    <p>Learn about our civic engagement platform and its mission to empower communities through technology.</p>
+                    <div class="question-hint">Click to learn more →</div>
+                </div>
+                
+                <div class="question-card" onclick="showAnswer('features')">
+                    <div class="question-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Key Features</h3>
+                    <p>Discover all the powerful features that make our platform unique and effective for community engagement.</p>
+                    <div class="question-hint">Click to learn more →</div>
+                </div>
+                
+                <div class="question-card" onclick="showAnswer('download')">
+                    <div class="question-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>How to Get Started?</h3>
+                    <p>Download the app or try our live demo. Get step-by-step instructions for installation and setup.</p>
+                    <div class="question-hint">Click to learn more →</div>
+                </div>
+                
+                <div class="question-card" onclick="showAnswer('team')">
+                    <div class="question-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Meet Our Team</h3>
+                    <p>Get to know the developers behind the project, their roles, and how to connect with them.</p>
+                    <div class="question-hint">Click to learn more →</div>
+                </div>
+                
+                <div class="question-card" onclick="showAnswer('security')">
+                    <div class="question-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Security Features</h3>
+                    <p>Understand our enterprise-grade security measures and how we protect user data and privacy.</p>
+                    <div class="question-hint">Click to learn more →</div>
+                </div>
+                
+                <div class="question-card" onclick="showAnswer('documents')">
+                    <div class="question-icon">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <h3>Project Documents</h3>
+                    <p>Access our complete project documentation, reports, presentations, and research materials.</p>
+                    <div class="question-hint">Click to learn more →</div>
+                </div>
+            </div>
+            
+            <div class="answers-section">
+                <div id="platform-answer" class="answer-card active">
+                    <div class="answer-header">
+                        <div class="answer-title">
+                            <i class="fas fa-mobile-alt"></i>
+                            <h3>Platform Overview</h3>
+                        </div>
+                        <div class="answer-actions">
+                            <button class="action-btn" onclick="copyAnswer('platform')">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                            <button class="action-btn" onclick="speakAnswer('platform')">
+                                <i class="fas fa-volume-up"></i> Speak
+                            </button>
+                        </div>
+                    </div>
+                    <div class="answer-content">
+                        <p><strong>We Are The Change</strong> is a revolutionary civic engagement platform designed to bridge the gap between citizens and municipal services in Bahrain. Our platform transforms how communities interact with local authorities and participate in volunteer activities.</p>
+                        
+                        <p><strong>Core Mission:</strong></p>
+                        <ul>
+                            <li>Empower citizens to report local issues efficiently</li>
+                            <li>Facilitate volunteer coordination for community projects</li>
+                            <li>Provide transparent tracking of issue resolution</li>
+                            <li>Enhance community participation through technology</li>
+                        </ul>
+                        
+                        <p><strong>Technical Architecture:</strong></p>
+                        <ul>
+                            <li>Frontend: Built with FlutterFlow for cross-platform compatibility</li>
+                            <li>Backend: Powered by Firebase for real-time data synchronization</li>
+                            <li>Database: Cloud Firestore for scalable data storage</li>
+                            <li>Storage: Firebase Storage for secure media handling</li>
+                            <li>Authentication: Firebase Auth with OTP verification</li>
+                        </ul>
+                        
+                        <div class="answer-links">
+                            <a href="#platform" class="link-item" onclick="event.stopPropagation(); window.parent.location.href = 'index.php#platform'">
+                                <i class="fas fa-external-link-alt"></i> View Platform Section
+                            </a>
+                            <a href="#elevator" class="link-item" onclick="event.stopPropagation(); window.parent.location.href = 'index.php#elevator'">
+                                <i class="fas fa-video"></i> Watch Demo Videos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="features-answer" class="answer-card">
+                    <div class="answer-header">
+                        <div class="answer-title">
+                            <i class="fas fa-star"></i>
+                            <h3>Platform Features</h3>
+                        </div>
+                        <div class="answer-actions">
+                            <button class="action-btn" onclick="copyAnswer('features')">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                            <button class="action-btn" onclick="speakAnswer('features')">
+                                <i class="fas fa-volume-up"></i> Speak
+                            </button>
+                        </div>
+                    </div>
+                    <div class="answer-content">
+                        <p>Our platform offers a comprehensive suite of features designed to streamline community engagement and issue resolution:</p>
+                        
+                        <p><strong>1. Intelligent Issue Reporting:</strong></p>
+                        <ul>
+                            <li>Photo upload with automatic compression</li>
+                            <li>GPS location tagging with map integration</li>
+                            <li>Category-based issue classification</li>
+                            <li>Priority level assignment</li>
+                            <li>Real-time status tracking</li>
+                        </ul>
+                        
+                        <p><strong>2. Volunteer Management System:</strong></p>
+                        <ul>
+                            <li>Browse available volunteer opportunities</li>
+                            <li>One-click signup for events</li>
+                            <li>Volunteer hour tracking</li>
+                            <li>Skill-based matching</li>
+                            <li>Event calendar integration</li>
+                        </ul>
+                        
+                        <p><strong>3. Admin Dashboard:</strong></p>
+                        <ul>
+                            <li>Comprehensive case management</li>
+                            <li>User management and role assignment</li>
+                            <li>Analytics and reporting tools</li>
+                            <li>Automated notification system</li>
+                            <li>Performance monitoring</li>
+                        </ul>
+                        
+                        <p><strong>4. Security Features:</strong></p>
+                        <ul>
+                            <li>Multi-factor authentication</li>
+                            <li>End-to-end data encryption</li>
+                            <li>Secure media upload protocols</li>
+                            <li>Role-based access control</li>
+                            <li>Regular security audits</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="download-answer" class="answer-card">
+                    <div class="answer-header">
+                        <div class="answer-title">
+                            <i class="fas fa-download"></i>
+                            <h3>Download & Installation</h3>
+                        </div>
+                        <div class="answer-actions">
+                            <button class="action-btn" onclick="copyAnswer('download')">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                            <button class="action-btn" onclick="speakAnswer('download')">
+                                <i class="fas fa-volume-up"></i> Speak
+                            </button>
+                        </div>
+                    </div>
+                    <div class="answer-content">
+                        <p>Getting started with We Are The Change is simple. Choose from these options:</p>
+                        
+                        <p><strong>Option 1: Android APK (Recommended)</strong></p>
+                        <ul>
+                            <li>Direct download from our website</li>
+                            <li>File size: Approximately 25 MB</li>
+                            <li>Requirements: Android 8.0 (Oreo) or higher</li>
+                            <li>Installation: Allow installation from unknown sources</li>
+                            <li>Updates: Manual updates through our website</li>
+                        </ul>
+                        
+                        <p><strong>Option 2: Live Demo (Instant Access)</strong></p>
+                        <ul>
+                            <li>Accessible via web browser at: <code>https://change.flutterflow.app</code></li>
+                            <li>No installation required</li>
+                            <li>Works on all modern browsers</li>
+                            <li>Mobile-responsive design</li>
+                            <li>Limited functionality compared to full app</li>
+                        </ul>
+                        
+                        <p><strong>Installation Steps for Android:</strong></p>
+                        <ol>
+                            <li>Download the APK file from our website</li>
+                            <li>Enable "Install from unknown sources" in settings</li>
+                            <li>Locate the downloaded file in your file manager</li>
+                            <li>Tap the file to begin installation</li>
+                            <li>Follow on-screen instructions</li>
+                            <li>Launch the app and create your account</li>
+                        </ol>
+                        
+                        <div class="answer-links">
+                            <a href="#download" class="link-item" onclick="event.stopPropagation(); window.parent.location.href = 'index.php#download'">
+                                <i class="fas fa-download"></i> Go to Download Section
+                            </a>
+                            <a href="https://change.flutterflow.app" target="_blank" class="link-item">
+                                <i class="fas fa-external-link-alt"></i> Open Live Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="team-answer" class="answer-card">
+                    <div class="answer-header">
+                        <div class="answer-title">
+                            <i class="fas fa-users"></i>
+                            <h3>Development Team</h3>
+                        </div>
+                        <div class="answer-actions">
+                            <button class="action-btn" onclick="copyAnswer('team')">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                            <button class="action-btn" onclick="speakAnswer('team')">
+                                <i class="fas fa-volume-up"></i> Speak
+                            </button>
+                        </div>
+                    </div>
+                    <div class="answer-content">
+                        <p>Meet the talented team behind We Are The Change:</p>
+                        
+                        <p><strong>Salman Mohamed (202102525)</strong></p>
+                        <ul>
+                            <li>Role: Lead Developer & Project Manager</li>
+                            <li>Expertise: Flutter Development, Firebase Integration</li>
+                            <li>Email: salman@stu.uob.edu.bh</li>
+                            <li>LinkedIn: linkedin.com/in/salman-altal-896973334</li>
+                            <li>Responsibilities: System architecture, Frontend development</li>
+                        </ul>
+                        
+                        <p><strong>Abdulla Khamis (202102256)</strong></p>
+                        <ul>
+                            <li>Role: Backend Developer & Security Specialist</li>
+                            <li>Expertise: Firebase Security, Database Design</li>
+                            <li>Email: abdulla@stu.uob.edu.bh</li>
+                            <li>LinkedIn: linkedin.com/in/abdullakhamis</li>
+                            <li>Responsibilities: Security implementation, Backend services</li>
+                        </ul>
+                        
+                        <p><strong>Hussain Sahwan (202102620)</strong></p>
+                        <ul>
+                            <li>Role: UI/UX Designer & Testing Lead</li>
+                            <li>Expertise: User Interface Design, Quality Assurance</li>
+                            <li>Email: hussain@stu.uob.edu.bh</li>
+                            <li>LinkedIn: linkedin.com/in/hussain-sahwan-1376592a8</li>
+                            <li>Responsibilities: UI design, Testing, Documentation</li>
+                        </ul>
+                        
+                        <p><strong>Project Collaboration:</strong></p>
+                        <ul>
+                            <li>Duration: 6 months development cycle</li>
+                            <li>Methodology: Agile Development with Scrum</li>
+                            <li>Tools: GitHub for version control, Figma for design</li>
+                            <li>Testing: Unit testing, Integration testing, User acceptance testing</li>
+                            <li>Documentation: Comprehensive technical documentation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="security-answer" class="answer-card">
+                    <div class="answer-header">
+                        <div class="answer-title">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Security Implementation</h3>
+                        </div>
+                        <div class="answer-actions">
+                            <button class="action-btn" onclick="copyAnswer('security')">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                            <button class="action-btn" onclick="speakAnswer('security')">
+                                <i class="fas fa-volume-up"></i> Speak
+                            </button>
+                        </div>
+                    </div>
+                    <div class="answer-content">
+                        <p>Security is our top priority. We've implemented multiple layers of protection:</p>
+                        
+                        <p><strong>1. Authentication & Authorization:</strong></p>
+                        <ul>
+                            <li>Firebase Authentication with email/password</li>
+                            <li>One-Time Password (OTP) verification</li>
+                            <li>Role-based access control (RBAC)</li>
+                            <li>Session management with automatic logout</li>
+                            <li>Password complexity requirements</li>
+                        </ul>
+                        
+                        <p><strong>2. Data Protection:</strong></p>
+                        <ul>
+                            <li>End-to-end encryption for sensitive data</li>
+                            <li>SSL/TLS for all communications</li>
+                            <li>Secure Firebase database rules</li>
+                            <li>Regular data backup and recovery procedures</li>
+                            <li>GDPR-compliant data handling</li>
+                        </ul>
+                        
+                        <p><strong>3. Methodology Implementation:</strong></p>
+                        <ul>
+                            <li>SQUARE Methodology for security requirements</li>
+                            <li>STRIDE threat modeling for risk assessment</li>
+                            <li>Regular penetration testing</li>
+                            <li>Vulnerability assessment and management</li>
+                            <li>Security incident response plan</li>
+                        </ul>
+                        
+                        <p><strong>4. Media & File Security:</strong></p>
+                        <ul>
+                            <li>Secure file upload with virus scanning</li>
+                            <li>Image compression and validation</li>
+                            <li>Access control for uploaded files</li>
+                            <li>Automatic cleanup of temporary files</li>
+                            <li>Secure storage with Firebase rules</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="documents-answer" class="answer-card">
+                    <div class="answer-header">
+                        <div class="answer-title">
+                            <i class="fas fa-folder"></i>
+                            <h3>Project Documentation</h3>
+                        </div>
+                        <div class="answer-actions">
+                            <button class="action-btn" onclick="copyAnswer('documents')">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                            <button class="action-btn" onclick="speakAnswer('documents')">
+                                <i class="fas fa-volume-up"></i> Speak
+                            </button>
+                        </div>
+                    </div>
+                    <div class="answer-content">
+                        <p>Access our comprehensive project documentation:</p>
+                        
+                        <p><strong>1. Project Report (50 pages)</strong></p>
+                        <ul>
+                            <li>Complete project documentation</li>
+                            <li>System analysis and design</li>
+                            <li>Implementation details</li>
+                            <li>Testing methodology and results</li>
+                            <li>Future enhancement plans</li>
+                        </ul>
+                        
+                        <p><strong>2. Project Poster (A1 Size)</strong></p>
+                        <ul>
+                            <li>Visual project summary</li>
+                            <li>Key features and benefits</li>
+                            <li>Technical architecture diagram</li>
+                            <li>Impact and results visualization</li>
+                            <li>Team information and contact details</li>
+                        </ul>
+                        
+                        <p><strong>3. PowerPoint Presentation (25 slides)</strong></p>
+                        <ul>
+                            <li>Project presentation slides</li>
+                            <li>Executive summary</li>
+                            <li>Demo screenshots and walkthrough</li>
+                            <li>Technical implementation details</li>
+                            <li>Q&A section</li>
+                        </ul>
+                        
+                        <p><strong>Additional Resources:</strong></p>
+                        <ul>
+                            <li>User manual and installation guide</li>
+                            <li>API documentation</li>
+                            <li>Database schema documentation</li>
+                            <li>Security audit reports</li>
+                            <li>Testing reports and bug logs</li>
+                        </ul>
+                        
+                        <div class="answer-links">
+                            <a href="#documents" class="link-item" onclick="event.stopPropagation(); window.parent.location.href = 'index.php#documents'">
+                                <i class="fas fa-eye"></i> View All Documents
+                            </a>
+                            <a href="documents.php?doc=report" target="_blank" class="link-item">
+                                <i class="fas fa-file-pdf"></i> Open Project Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-footer">
+            <p>Need more help? You can also contact our team directly for personalized assistance.</p>
+            <div class="footer-buttons">
+                <a href="index.php" class="footer-btn btn-primary">
+                    <i class="fas fa-home"></i> Back to Main Website
+                </a>
+                <a href="index.php#contact" class="footer-btn btn-secondary">
+                    <i class="fas fa-envelope"></i> Contact Team
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAnswer = 'platform';
+        
+        function showAnswer(answerType) {
+            // Hide all answers
+            document.querySelectorAll('.answer-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Show selected answer
+            const answerCard = document.getElementById(`${answerType}-answer`);
+            answerCard.classList.add('active');
+            
+            // Smooth scroll to answer
+            answerCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            currentAnswer = answerType;
+        }
+        
+        function copyAnswer(answerType) {
+            const answerCard = document.getElementById(`${answerType}-answer`);
+            const text = answerCard.querySelector('.answer-content').innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const buttons = answerCard.querySelectorAll('.action-btn');
+                buttons[0].innerHTML = '<i class="fas fa-check"></i> Copied!';
+                
+                setTimeout(() => {
+                    buttons[0].innerHTML = '<i class="far fa-copy"></i> Copy';
+                }, 2000);
+            });
+        }
+        
+        function speakAnswer(answerType) {
+            const answerCard = document.getElementById(`${answerType}-answer`);
+            const text = answerCard.querySelector('.answer-content').innerText;
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                
+                const buttons = answerCard.querySelectorAll('.action-btn');
+                buttons[1].innerHTML = '<i class="fas fa-stop"></i> Stop';
+                
+                utterance.onend = () => {
+                    buttons[1].innerHTML = '<i class="fas fa-volume-up"></i> Speak';
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech is not supported in your browser.');
+            }
+        }
+        
+        // Initialize with first answer
+        document.addEventListener('DOMContentLoaded', () => {
+            showAnswer('platform');
+            
+            // Add click animations
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.animation = 'none';
+                    setTimeout(() => {
+                        this.style.animation = '';
+                    }, 10);
+                });
+            });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.location.href = 'index.php';
+            }
+            if (e.key === '1' && e.ctrlKey) {
+                showAnswer('platform');
+            }
+            if (e.key === '2' && e.ctrlKey) {
+                showAnswer('features');
+            }
+            if (e.key === '3' && e.ctrlKey) {
+                showAnswer('download');
+            }
+        });
+    </script>
+</body>
+</html>
